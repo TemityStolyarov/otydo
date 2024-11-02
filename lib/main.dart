@@ -21,6 +21,8 @@ class _MainAppState extends State<MainApp> {
   bool showDiff = false;
   bool isGreenCoundown = false;
 
+  bool showGoldenSense = false;
+
   final textController = TextEditingController();
   final maxValueController = TextEditingController();
 
@@ -157,6 +159,13 @@ class _MainAppState extends State<MainApp> {
                           controller: blueController,
                         ),
                       ),
+                      if (showGoldenSense) ...[
+                        const SizedBox(width: 20),
+                        _GoldenSense(
+                          maybe: int.tryParse(blueController.text) ?? 0,
+                          answer: int.tryParse(textController.text) ?? 0,
+                        ),
+                      ],
                       const Spacer(),
                       Text('Сейчас $value1 / $maxValue'),
                       if (correctValue != -1 && showDiff)
@@ -188,6 +197,13 @@ class _MainAppState extends State<MainApp> {
                           controller: redController,
                         ),
                       ),
+                      if (showGoldenSense) ...[
+                        const SizedBox(width: 20),
+                        _GoldenSense(
+                          maybe: int.tryParse(redController.text) ?? 0,
+                          answer: int.tryParse(textController.text) ?? 0,
+                        ),
+                      ],
                       const Spacer(),
                       Text('Сейчас $value2 / $maxValue'),
                       if (correctValue != -1 && showDiff)
@@ -343,6 +359,7 @@ class _MainAppState extends State<MainApp> {
               if (summ == 0) {
                 setState(() {
                   showDiff = true;
+                  showGoldenSense = false;
                   correctValue = correctAnswer;
                 });
                 continue;
@@ -443,6 +460,7 @@ class _MainAppState extends State<MainApp> {
                 if (diff == 0) {
                   setState(() {
                     isGreenCoundown = true;
+                    showGoldenSense = true;
                   });
                 }
                 await Future.delayed(
@@ -473,6 +491,32 @@ class _MainAppState extends State<MainApp> {
   }
 }
 
+class _GoldenSense extends StatelessWidget {
+  final int maybe;
+  final int answer;
+
+  const _GoldenSense({
+    required this.maybe,
+    required this.answer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final showText = maybe == answer;
+
+    return showText
+        ? const Text(
+            'Золотая чуйка',
+            style: TextStyle(
+              color: Colors.orange,
+              fontWeight: FontWeight.w600,
+              fontSize: 36,
+            ),
+          )
+        : const SizedBox.shrink();
+  }
+}
+
 class _ThatMinus extends StatelessWidget {
   final int maybe;
   final int answer;
@@ -488,16 +532,15 @@ class _ThatMinus extends StatelessWidget {
         (maybe - answer) < 0 ? (maybe - answer) * -1 : (maybe - answer);
 
     return thatMinus == 0
-        ? const Text(
-            ' ЗОЛОТАЯ ЧУЙКА!',
-            style: const TextStyle(
-              color: Colors.orange,
+        ? Text(
+            ' Золотая чуйка',
+            style: TextStyle(
+              color: Colors.orange.withOpacity(0.8),
               fontWeight: FontWeight.w600,
-              fontSize: 40,
             ),
           )
         : Text(
-            ' - ${thatMinus}',
+            ' - $thatMinus',
             style: TextStyle(
               color: Colors.red.shade900,
             ),
